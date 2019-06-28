@@ -4,8 +4,8 @@ from songbucket.server import HTTPRequestHandler
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get('PORT', 8080))
-    server = HTTPServer(('localhost', port), HTTPRequestHandler)
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(("localhost", port), HTTPRequestHandler)
 
     print("Server started at http://localhost:{}".format(port))
 
