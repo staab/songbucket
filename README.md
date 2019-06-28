@@ -6,7 +6,7 @@ Note that this is a toy application; this shouldn't be used as a template for a 
 
 ## Setting up the database
 
-The repository comes with a sqlite3 database pre-built with the app's schema. If you need to reset it, a `git checkout songbucket.db` should do the trick. If you would like to modify the schema or starting data, you can edit `populate_db.py`, and then run `python3 populate_db.py`.
+The repository comes with a sqlite3 database pre-built with the app's schema. If you need to reset it, call `db.reset()` in the python shell (or run the tests, which does that on set up). If you would like to modify the schema or starting data, you can edit the fixtures in `db.py`, and then reset the database.
 
 ## Running the server
 
@@ -14,4 +14,6 @@ This repository is set up as a python package, which means that you can start it
 
 ## Running tests
 
-A quick test package is provided, which demonstrates how to use python's built-in `unittest` module. In this case, we make simple http requests against the server to check that it spits out the right data. Note that normally real http requests aren't used in testing since they slow things down significantly. To run the tests, execute `python3 -m unittest .`. This will automatically find all tests that are defined using unittest's `TestCase` class.
+A quick test package is provided, which demonstrates how to use python's built-in `unittest` module. To run the tests, execute `python3 -m unittest .`. This will automatically find all tests that are defined using unittest's `TestCase` class.
+
+For testing the server we make simple http requests against it to check that it spits out the right data, but normally real http requests aren't used in testing since they slow things down significantly.

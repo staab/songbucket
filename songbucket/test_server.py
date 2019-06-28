@@ -1,5 +1,6 @@
 import unittest, os, time, random, subprocess, json
 from http.client import HTTPConnection
+from songbucket import db
 
 env = os.environ.copy()
 env["PORT"] = str(random.randint(10000, 65535))
@@ -13,8 +14,8 @@ time.sleep(0.3)
 
 class TestServer(unittest.TestCase):
     def setUp(self):
-        # Reset the database and build our client
-        subprocess.run(["python3", "populate_db.py"])
+        db.reset()
+
         self.client = HTTPConnection("localhost", env["PORT"])
 
     def tearDown(self):
@@ -46,21 +47,7 @@ class TestServer(unittest.TestCase):
         status, body = self.request("GET", "/favorites")
 
         self.assertEqual(200, status),
-        self.assertEqual(
-            {
-                "favorites": [
-                    {"artist": "Rebecca Black", "id": 1, "song": "Friday"},
-                    {"artist": "Sufjan Stevens", "id": 2, "song": "Friday"},
-                    {"artist": "Elvis", "id": 3, "song": "Blue Suede Shoes"},
-                    {
-                        "artist": "Simon and Garfunkel",
-                        "id": 4,
-                        "song": "Feeling Groovy",
-                    },
-                ]
-            },
-            body,
-        )
+        self.assertEqual({"favorites": db.fixtures}, body)
 
     def testAddFavorite(self):
         request_body = json.dumps({"artist": "Seal", "song": "Crazy"}).encode("utf-8")
@@ -72,19 +59,7 @@ class TestServer(unittest.TestCase):
 
         self.assertEqual(200, status),
         self.assertEqual(
-            {
-                "favorites": [
-                    {"artist": "Rebecca Black", "id": 1, "song": "Friday"},
-                    {"artist": "Sufjan Stevens", "id": 2, "song": "Friday"},
-                    {"artist": "Elvis", "id": 3, "song": "Blue Suede Shoes"},
-                    {
-                        "artist": "Simon and Garfunkel",
-                        "id": 4,
-                        "song": "Feeling Groovy",
-                    },
-                    {"artist": "Seal", "id": 5, "song": "Crazy"},
-                ]
-            },
+            {"favorites": db.fixtures + [{"artist": "Seal", "id": 5, "song": "Crazy"}]},
             body,
         )
 
