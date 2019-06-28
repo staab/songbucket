@@ -39,7 +39,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     # Request handlers (aka controllers)
 
     def list_favorites(self):
-        self.send_json(200, {"favorites": db.listfavorites()})
+        self.send_json(200, {"favorites": db.list_favorites()})
 
     def add_favorite(self):
         try:

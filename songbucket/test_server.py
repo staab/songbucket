@@ -1,26 +1,24 @@
 import unittest, os, time, random, subprocess, json
 from http.client import HTTPConnection
 
+env = os.environ.copy()
+env["PORT"] = str(random.randint(10000, 65535))
+
+# Start the server
+process = subprocess.Popen(["python3", "."], env=env)
+
+# Wait for the server to start
+time.sleep(0.3)
+
 
 class TestServer(unittest.TestCase):
     def setUp(self):
-        env = os.environ.copy()
-        env["PORT"] = str(random.randint(10000, 65535))
-
-        # Start the server
-        self.process = subprocess.Popen(["python3", "."], env=env)
-
-        # Reset the database
+        # Reset the database and build our client
         subprocess.run(["python3", "populate_db.py"])
-
-        # Wait for the server to start and build our client
-        time.sleep(0.3)
         self.client = HTTPConnection("localhost", env["PORT"])
 
     def tearDown(self):
         self.client.close()
-        self.process.terminate()
-        self.process.wait()
 
     def request(self, *args, **kwargs):
         self.client.request(*args, **kwargs)
@@ -28,6 +26,21 @@ class TestServer(unittest.TestCase):
         response = self.client.getresponse()
 
         return response.status, json.loads(response.read())
+
+    def testStatic(self):
+        self.client.request("GET", "/")
+
+        response = self.client.getresponse()
+
+        self.assertEqual(200, response.status)
+        self.assertTrue(b'this comment helps us' in response.read())
+
+        self.client.request("GET", "/index.html")
+
+        response = self.client.getresponse()
+
+        self.assertEqual(200, response.status)
+        self.assertTrue(b'this comment helps us' in response.read())
 
     def testGetFavorites(self):
         status, body = self.request("GET", "/favorites")
