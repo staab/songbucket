@@ -42,7 +42,7 @@ class TestServer(unittest.TestCase):
         self.assertEqual(200, response.status)
         self.assertTrue(b'this comment helps us' in response.read())
 
-    def testGetFavorites(self):
+    def testListFavorites(self):
         status, body = self.request("GET", "/favorites")
 
         self.assertEqual(200, status),
@@ -62,7 +62,7 @@ class TestServer(unittest.TestCase):
             body,
         )
 
-    def testCreateFavorite(self):
+    def testAddFavorite(self):
         request_body = json.dumps({"artist": "Seal", "song": "Crazy"}).encode("utf-8")
         status, body = self.request("POST", "/favorites", body=request_body)
 
