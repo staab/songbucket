@@ -16,14 +16,34 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(body).encode("utf-8"))
 
+    def serve_static_file(self):
+        filename = 'index.html' if self.path == "/" else self.path[1:]
+
+        with open("./static/{}".format(filename), 'r') as f:
+            file_contents = f.read()
+
+        if filename.endswith('.html'):
+            content_type = 'text/html'
+        elif filename.endswith('.css'):
+            content_type = 'text/css'
+        elif filename.endswith('.js'):
+            content_type = 'text/javascript'
+        else:
+            raise ValueError("Could not get content type for {}".format(filename))
+
+        self.send_response(200)
+        self.send_header("Content-type", content_type)
+        self.end_headers()
+        self.wfile.write(file_contents.encode("utf-8"))
+
     # Request handlers (aka controllers)
 
     def list_favorites(self):
-        self.send_json(200, {"favorites": db.get_favorites()})
+        self.send_json(200, {"favorites": db.listfavorites()})
 
     def add_favorite(self):
         try:
-            self.send_json(201, {"id": db.save_favorite(self.read_json())})
+            self.send_json(201, {"id": db.add_favorite(self.read_json())})
         except json.decoder.JSONDecodeError:
             self.send_json(400, {"error": "Invalid JSON in request body"})
         except db.ValidationError as exc:
@@ -32,9 +52,13 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     # Method handlers and route matching
 
     def do_GET(self):
-        print(self.path)
         if self.path == "/favorites":
             return self.list_favorites()
+
+        try:
+            return self.serve_static_file()
+        except FileNotFoundError as exc:
+            pass
 
         return self.send_json(404, {"error": "Not found"})
 

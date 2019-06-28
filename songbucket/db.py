@@ -8,7 +8,7 @@ class ValidationError(Exception):
     pass
 
 
-def get_favorites():
+def list_favorites():
     cursor = connection.cursor()
     cursor.execute("select * from favorites")
     columns = [x[0] for x in cursor.description]
@@ -16,7 +16,7 @@ def get_favorites():
     return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
-def save_favorite(data):
+def add_favorite(data):
     if not data.get("artist"):
         raise ValidationError("'artist' is a required parameter")
 
