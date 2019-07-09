@@ -1,7 +1,15 @@
-import sqlite3
+import sqlite3, threading
 
 
-connection = sqlite3.connect("songbucket.db")
+pool = {}
+
+def get_connection():
+    thread_ident = threading.get_ident()
+
+    if thread_ident not in pool:
+        pool[thread_ident] = sqlite3.connect("songbucket.db")
+
+    return pool[thread_ident]
 
 
 class ValidationError(Exception):
@@ -9,7 +17,7 @@ class ValidationError(Exception):
 
 
 def list_favorites():
-    cursor = connection.cursor()
+    cursor = get_connection().cursor()
     cursor.execute("select * from favorites")
     columns = [x[0] for x in cursor.description]
 
@@ -25,11 +33,11 @@ def add_favorite(data):
 
     values = (data["artist"], data["song"])
 
-    cursor = connection.cursor()
+    cursor = get_connection().cursor()
 
     try:
         cursor.execute("insert into favorites VALUES (null, ?, ?)", values)
-        connection.commit()
+        get_connection().commit()
     except sqlite3.IntegrityError:
         pass
 
@@ -49,11 +57,11 @@ fixtures = [
 
 
 def drop_schema():
-    connection.execute("DROP TABLE IF EXISTS favorites")
+    get_connection().execute("DROP TABLE IF EXISTS favorites")
 
 
 def create_schema():
-    connection.execute(
+    get_connection().execute(
         """
         CREATE TABLE favorites (
             id integer not null primary key,
@@ -69,7 +77,7 @@ def insert_fixtures():
     for favorite in fixtures:
         add_favorite(favorite)
 
-    connection.commit()
+    get_connection().commit()
 
 
 def reset():

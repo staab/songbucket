@@ -14,6 +14,6 @@ This repository is set up as a python package, which means that you can start it
 
 ## Running tests
 
-A quick test package is provided, which demonstrates how to use python's built-in `unittest` module. To run the tests, execute `python3 -m unittest .`. This will automatically find all tests that are defined using unittest's `TestCase` class.
+A quick test package is provided, which demonstrates how to use python's built-in `unittest` module. To run the tests, execute `python3 -m unittest`. This will automatically find all tests that are defined using unittest's `TestCase` class.
 
 For testing the server we make simple http requests against it to check that it spits out the right data, but normally real http requests aren't used in testing since they slow things down significantly.
