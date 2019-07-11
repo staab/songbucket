@@ -1,9 +1,175 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-  <head>
-  </head>
-  <body>
-    <!-- this comment helps us test routing, don't remove it -->
-    Hello World!
-  </body>
+
+<head>
+  <title>Lyrics Center</title>
+</head>
+
+<style>
+  body {
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino;
+    /*get rid of extra margin at the top of page*/
+    margin: 0 !important;
+  }
+
+  h1 {
+    margin: 0;
+    padding: 20px;
+    background: LightPink;
+    color: white;
+    text-align: center;
+  }
+
+  #row {
+    margin: 30px;
+    /*flex basically display its children side-by-side*/
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .column {
+    padding: 30px;
+    min-height: 200px;
+  }
+
+  #favorites-column {
+    background: LightPink;
+    color: white;
+    border-radius: 5px;
+  }
+
+  h2 {
+    margin: 0;
+  }
+
+  hr {
+    border: 1px solid white;
+  }
+
+  #favorites {
+    padding-inline-start: 0;
+  }
+
+  li {
+    margin: 10px 0;
+  }
+
+  input,
+  button {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid LightPink;
+    color: LightPink;
+    font-size: 20px;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino;
+  }
+
+  input {
+    color: LightPink;
+  }
+
+  button {
+    background: LightPink;
+    color: white;
+  }
+
+  #lyrics {
+    margin: 5px;
+    margin-top: 20px;
+    white-space: pre-line;
+    line-height: 30px;
+  }
+</style>
+
+<body>
+
+  <h1>Song Bucket</h1>
+
+  <div id="row">
+    <div id="favorites-column" class="column">
+      <h2>Your favorites</h2>
+      <hr />
+      <ul id="favorites">
+      </ul>
+    </div>
+    <div class="column">
+      <input id="artist-input" placeholder="Enter an Artist..." />
+      <input id="song-input" placeholder="Search for a Song..." />
+      <button id="search-button">Search</button>
+      <br />
+      <br />
+      <button style="display:none" id="add-favorite-button">
+        Add to Favorites
+      </button>
+      <div id="lyrics">
+      </div>
+    </div>
+</body>
+
+<script>
+  const fetchLyrics = () => {
+    const artist = document.getElementById('artist-input').value;
+    const song = document.getElementById('song-input').value;
+
+    fetch('https://api.lyrics.ovh/v1/' + artist + '/' + song)
+      .then(response => response.json())
+      .then(data => {
+        //if the API cannot find any match
+        if (data.error) {
+          document.getElementById('lyrics').innerHTML = 'No Luck!'
+        }
+        //else, update the webpage with found lyrics
+        else {
+          document.getElementById('lyrics').innerHTML = data.lyrics;
+          document.getElementById('add-favorite-button').style.display = 'inherit';
+        }
+      });
+  };
+
+  //when clicking search-button, trigger the function fetchLyrics
+  document
+    .getElementById('search-button')
+    .addEventListener('click', fetchLyrics);
+
+  //also when you press Enter in the artist input box, trigger the function fetchLyrics
+  document.getElementById('song-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      fetchLyrics();
+    }
+  });
+
+
+  const addFavorite = () => {
+    const artist = document.getElementById('artist-input').value;
+    const song = document.getElementById('song-input').value;
+
+    //save the favorites through API
+    fetch('http://localhost:8080/favorites', {
+      method: 'post',
+      body: JSON.stringify({ artist, song })
+    })
+
+    //wait 1 second, and re-fetch updated favorites list
+    //the wait gives API time to process new data
+    setTimeout(()=>{
+      fetch('http://localhost:8080/favorites')
+        .then(response => response.json())
+        //turn each song/artist object in to a <li>
+        .then(data => document.getElementById('favorites').innerHTML = data.favorites.map(item => `<li><b>${item.song}</b><br/>By${item.artist}</li>`).join(''))}, 1000);
+
+  }
+
+  document
+    .getElementById('add-favorite-button')
+    .addEventListener('click', addFavorite);
+
+  //fetch favorites when page loads
+  fetch('http://localhost:8080/favorites')
+    .then(response => response.json())
+    .then(data => document.getElementById('favorites').innerHTML = data.favorites.map(item => `<li><b>${item.song}</b><br/>By ${item.artist}</li>`).join(''));
+
+</script>
+
 </html>
