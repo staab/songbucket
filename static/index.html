@@ -149,16 +149,12 @@
     fetch('http://localhost:8080/favorites', {
       method: 'post',
       body: JSON.stringify({ artist, song })
-    })
-
-    //wait 1 second, and re-fetch updated favorites list
-    //the wait gives API time to process new data
-    setTimeout(()=>{
-      fetch('http://localhost:8080/favorites')
+    }).then(
+      //wait for POST request to finish first, and then re-fetch updated favorites list
+      () => fetch('http://localhost:8080/favorites')
         .then(response => response.json())
         //turn each song/artist object in to a <li>
-        .then(data => document.getElementById('favorites').innerHTML = data.favorites.map(item => `<li><b>${item.song}</b><br/>By${item.artist}</li>`).join(''))}, 1000);
-
+        .then(data => document.getElementById('favorites').innerHTML = data.favorites.map(item => `<li><b>${item.song}</b><br/>By${item.artist}</li>`).join('')));
   }
 
   document
