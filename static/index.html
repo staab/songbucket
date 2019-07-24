@@ -8,62 +8,96 @@
 <style>
   body {
     font-family: "Palatino Linotype", "Book Antiqua", Palatino;
-    /*get rid of extra margin at the top of page*/
-    margin: 0 !important;
+    margin: 0;
   }
 
   h1 {
     margin: 0;
-    padding: 20px;
-    background: LightPink;
-    color: white;
+    padding: 22px 16px;
+    font-size: 24px;
     text-align: center;
   }
 
-  #row {
-    margin: 30px;
-    /*flex basically display its children side-by-side*/
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-
-  .column {
-    padding: 30px;
-    min-height: 200px;
-  }
-
-  #favorites-column {
-    background: LightPink;
-    color: white;
-    border-radius: 5px;
-  }
-
-  h2 {
-    margin: 0;
-  }
-
-  hr {
-    border: 1px solid white;
-  }
-
-  #favorites {
-    padding-inline-start: 0;
+  ul {
+    padding-inline-start: 18px;
   }
 
   li {
     margin: 10px 0;
   }
 
+  li .favorite-song {
+    font-weight: bold;
+    display: block;
+  }
+
+  li:hover .favorite-song {
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  .dark {
+    background-color: LightPink;
+    color: white;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .content {
+    width: 710px;
+    margin: 45px auto;
+    display: flex;
+    align-items: start;
+  }
+
+  .column-left {
+    width: 30%;
+    margin-right: 5%;
+    padding: 16px;
+    border-radius: 3px;
+  }
+
+  .column-right {
+    width: 65%;
+  }
+
+  h2 {
+    margin: 0;
+    padding-bottom: 6px;
+  }
+
+  hr {
+    border: 1px solid white;
+  }
+
+  a {
+    color: LightPink;
+    text-decoration: underline;
+    transition: opacity 300ms;
+    cursor: pointer;
+  }
+
+  a:hover {
+    opacity: 0.8;
+  }
+
+  .row {
+    margin-bottom: 18px;
+    display: flex;
+  }
+
   input,
   button {
-    margin: 5px;
-    padding: 10px;
-    border-radius: 5px;
-    border: 2px solid LightPink;
+    flex-grow: 1;
+    padding: 14px;
+    border-radius: 3px;
+    border: 1px solid LightPink;
+    font-size: 18px;
+  }
+
+  input::placeholder {
     color: LightPink;
-    font-size: 20px;
     font-family: "Palatino Linotype", "Book Antiqua", Palatino;
+    opacity: 0.8;
   }
 
   input {
@@ -73,99 +107,175 @@
   button {
     background: LightPink;
     color: white;
+    cursor: pointer;
+    transition: opacity 300ms;
+    font-family: "Palatino Linotype", "Book Antiqua", Palatino;
   }
 
-  #lyrics {
-    margin: 5px;
-    margin-top: 20px;
-    white-space: pre-line;
+  button:hover {
+    opacity: 0.8;
+  }
+
+  input[name="song"] {
+    flex-grow: 2;
+    margin-right: 2%;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .result {
+    margin-top: 54px;
+  }
+
+  .result h2 {
+    color: LightPink;
+  }
+
+  #lyrics p {
     line-height: 30px;
+    white-space: pre-line;
   }
 </style>
 
 <body>
 
-  <h1>Song Bucket</h1>
+  <h1 class="dark">Song Bucket</h1>
 
-  <div id="row">
-    <div id="favorites-column" class="column">
-      <h2>Your favorites</h2>
+  <div class="content">
+    <div class="column-left dark">
+      <h2>Favorites</h2>
       <hr />
       <ul id="favorites">
       </ul>
     </div>
-    <div class="column">
-      <input id="artist-input" placeholder="Enter an Artist..." />
-      <input id="song-input" placeholder="Search for a Song..." />
-      <button id="search-button">Search</button>
-      <br />
-      <br />
-      <button style="display:none" id="add-favorite-button">
-        Add to Favorites
-      </button>
-      <div id="lyrics">
+    <form class="column-right" name="lyrics-form">
+      <div class="row">
+        <input name="artist" placeholder="Enter an Artist..." />
+      </div>
+      <div class="row">
+        <input name="song" placeholder="Search for a Song..." />
+        <button type="submit">Search</button>
+      </div>
+      <div class="row result">
+        <div id="loading" class="hidden"><h2>Working...</h2></div>
+        <div id="lyrics" class="hidden">
+          <h2></h2>
+          <small><a id="add-favorite">Add to Favorites</a></small>
+          <p></p>
+        </div>
+        <div id="error" class="hidden">
+          <h2>No Luck!</h2>
+          <p>We came up empty. Try another song, or check your spelling.</p>
+        </div>
       </div>
     </div>
 </body>
 
 <script>
+  const sanitize = str => {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
   const fetchLyrics = () => {
-    const artist = document.getElementById('artist-input').value;
-    const song = document.getElementById('song-input').value;
+    const artist = document.querySelector('input[name="artist"]').value;
+    const song = document.querySelector('input[name="song"]').value;
+
+    document.querySelector('#loading').classList.remove('hidden')
+    document.querySelector('#lyrics').classList.add('hidden')
+    document.querySelector('#error').classList.add('hidden')
 
     fetch('https://api.lyrics.ovh/v1/' + artist + '/' + song)
       .then(response => response.json())
       .then(data => {
+        document.querySelector('#loading').classList.add('hidden')
+
         //if the API cannot find any match
         if (data.error) {
-          document.getElementById('lyrics').innerHTML = 'No Luck!'
+          document.querySelector('#error').classList.remove('hidden')
         }
         //else, update the webpage with found lyrics
         else {
-          document.getElementById('lyrics').innerHTML = data.lyrics;
-          document.getElementById('add-favorite-button').style.display = 'inherit';
+          const lyrics = document.querySelector('#lyrics')
+
+          lyrics.classList.remove('hidden')
+          lyrics.querySelector('h2').innerHTML = sanitize(song + ' by ' + artist)
+          lyrics.querySelector('p').innerHTML = sanitize(data.lyrics);
         }
       });
   };
 
-  //when clicking search-button, trigger the function fetchLyrics
-  document
-    .getElementById('search-button')
-    .addEventListener('click', fetchLyrics);
+  const recallFavorite = ({artist, song}) => {
+    document.querySelector('input[name="artist"]').value = artist;
+    document.querySelector('input[name="song"]').value = song;
 
-  //also when you press Enter in the artist input box, trigger the function fetchLyrics
-  document.getElementById('song-input').addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      fetchLyrics();
-    }
-  });
-
-
-  const addFavorite = () => {
-    const artist = document.getElementById('artist-input').value;
-    const song = document.getElementById('song-input').value;
-
-    //save the favorites through API
-    fetch('http://localhost:8080/favorites', {
-      method: 'post',
-      body: JSON.stringify({ artist, song })
-    }).then(
-      //wait for POST request to finish first, and then re-fetch updated favorites list
-      () => fetch('http://localhost:8080/favorites')
-        .then(response => response.json())
-        //turn each song/artist object in to a <li>
-        .then(data => document.getElementById('favorites').innerHTML = data.favorites.map(item => `<li><b>${item.song}</b><br/>By${item.artist}</li>`).join('')));
+    fetchLyrics()
   }
 
+  const loadFavorites = () => {
+    fetch('http://localhost:8080/favorites')
+      .then(response => response.json())
+      .then(data => {
+        const favoritesUL = document.getElementById('favorites')
+
+        while (favoritesUL.hasChildNodes()) {
+            favoritesUL.removeChild(favoritesUL.lastChild);
+        }
+
+        data.favorites.forEach(({song, artist}) => {
+          const li = document.createElement('li')
+          const songSpan = document.createElement('span')
+          const artistSpan = document.createElement('span')
+
+          songSpan.className = 'favorite-song'
+          artistSpan.className = 'favorite-artist'
+
+          songSpan.innerHTML = sanitize(song)
+          artistSpan.innerHTML = sanitize(artist)
+
+          li.appendChild(songSpan)
+          li.appendChild(artistSpan)
+
+          li.addEventListener('click', () => recallFavorite({artist, song}))
+
+          favoritesUL.appendChild(li)
+       });
+    });
+  }
+
+  const addFavorite = () => {
+    const artist = document.querySelector('input[name="artist"]').value;
+    const song = document.querySelector('input[name="song"]').value;
+
+    //save the favorites through API
+    //wait for POST request to finish first, and then re-fetch updated favorites list
+    fetch('http://localhost:8080/favorites', {
+      method: 'post',
+      body: JSON.stringify({artist, song})
+    }).then(loadFavorites)
+  }
+
+  //when submitting the form, trigger the function fetchLyrics
   document
-    .getElementById('add-favorite-button')
+    .querySelector('form[name="lyrics-form"]')
+    .addEventListener('submit', event => {
+      event.preventDefault()
+
+      fetchLyrics()
+    });
+
+  //add favorite on click
+  document
+    .getElementById('add-favorite')
     .addEventListener('click', addFavorite);
 
   //fetch favorites when page loads
-  fetch('http://localhost:8080/favorites')
-    .then(response => response.json())
-    .then(data => document.getElementById('favorites').innerHTML = data.favorites.map(item => `<li><b>${item.song}</b><br/>By ${item.artist}</li>`).join(''));
-
+  loadFavorites()
 </script>
 
 </html>
