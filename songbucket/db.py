@@ -1,49 +1,14 @@
-import sqlite3, threading
-
-
-pool = {}
 
 def get_connection():
-    thread_ident = threading.get_ident()
-
-    if thread_ident not in pool:
-        pool[thread_ident] = sqlite3.connect("songbucket.db")
-
-    return pool[thread_ident]
-
-
-class ValidationError(Exception):
     pass
 
 
 def list_favorites():
-    cursor = get_connection().cursor()
-    cursor.execute("select * from favorites")
-    columns = [x[0] for x in cursor.description]
-
-    return [dict(zip(columns, row)) for row in cursor.fetchall()]
+    pass
 
 
 def add_favorite(data):
-    if not data.get("artist"):
-        raise ValidationError("'artist' is a required parameter")
-
-    if not data.get("song"):
-        raise ValidationError("'song' is a required parameter")
-
-    values = (data["artist"], data["song"])
-
-    cursor = get_connection().cursor()
-
-    try:
-        cursor.execute("insert into favorites VALUES (null, ?, ?)", values)
-        get_connection().commit()
-    except sqlite3.IntegrityError:
-        pass
-
-    cursor.execute("select id from favorites where artist = ? and song = ?", values)
-
-    return cursor.fetchone()[0]
+    pass
 
 
 # Admin utils
