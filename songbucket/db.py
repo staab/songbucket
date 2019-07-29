@@ -50,9 +50,9 @@ def add_favorite(data):
 
 fixtures = [
     {"artist": "Rebecca Black", "id": 1, "song": "Friday"},
-    {"artist": "Sufjan Stevens", "id": 2, "song": "Friday"},
+    {"artist": "Sufjan Stevens", "id": 2, "song": "Casimir Pulaski Day"},
     {"artist": "Elvis", "id": 3, "song": "Blue Suede Shoes"},
-    {"artist": "Simon and Garfunkel", "id": 4, "song": "Feeling Groovy"},
+    {"artist": "Simon & Garfunkel", "id": 4, "song": "The 59th Street Bridge Song"},
 ]
 
 
