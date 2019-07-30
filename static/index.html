@@ -221,46 +221,11 @@
   }
 
   const loadFavorites = () => {
-    fetch('http://localhost:8080/favorites')
-      .then(response => response.json())
-      .then(data => {
-        const favoritesUL = document.getElementById('favorites')
-
-        while (favoritesUL.hasChildNodes()) {
-            favoritesUL.removeChild(favoritesUL.lastChild);
-        }
-
-        data.favorites.forEach(({song, artist}) => {
-          const li = document.createElement('li')
-          const songSpan = document.createElement('span')
-          const artistSpan = document.createElement('span')
-
-          songSpan.className = 'favorite-song'
-          artistSpan.className = 'favorite-artist'
-
-          songSpan.innerHTML = sanitize(song)
-          artistSpan.innerHTML = sanitize(artist)
-
-          li.appendChild(songSpan)
-          li.appendChild(artistSpan)
-
-          li.addEventListener('click', () => recallFavorite({artist, song}))
-
-          favoritesUL.appendChild(li)
-       });
-    });
+    throw new Error('loadFavorites is not implemented')
   }
 
   const addFavorite = () => {
-    const artist = document.querySelector('input[name="artist"]').value;
-    const song = document.querySelector('input[name="song"]').value;
-
-    //save the favorites through API
-    //wait for POST request to finish first, and then re-fetch updated favorites list
-    fetch('http://localhost:8080/favorites', {
-      method: 'post',
-      body: JSON.stringify({artist, song})
-    }).then(loadFavorites)
+    throw new Error('addFavorite is not implemented')
   }
 
   //when submitting the form, trigger the function fetchLyrics
