@@ -1,4 +1,5 @@
 import json
+from http.client import HTTPConnection
 from http.server import BaseHTTPRequestHandler
 from songbucket import db
 
@@ -15,26 +16,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-type", "application/json")
         self.end_headers()
         self.wfile.write(json.dumps(body).encode("utf-8"))
-
-    def serve_static_file(self):
-        filename = 'index.html' if self.path == "/" else self.path[1:]
-
-        with open("./static/{}".format(filename), 'r') as f:
-            file_contents = f.read()
-
-        if filename.endswith('.html'):
-            content_type = 'text/html'
-        elif filename.endswith('.css'):
-            content_type = 'text/css'
-        elif filename.endswith('.js'):
-            content_type = 'text/javascript'
-        else:
-            raise ValueError("Could not get content type for {}".format(filename))
-
-        self.send_response(200)
-        self.send_header("Content-type", content_type)
-        self.end_headers()
-        self.wfile.write(file_contents.encode("utf-8"))
 
     # Request handlers (aka controllers)
 
@@ -55,14 +36,21 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if self.path == "/favorites":
             return self.list_favorites()
 
-        try:
-            return self.serve_static_file()
-        except FileNotFoundError as exc:
-            pass
+        client = HTTPConnection("localhost", 3000)
+        client.request('GET', self.path)
 
-        return self.send_json(404, {"error": "Not found"})
+        response = client.getresponse()
+
+        self.send_response(response.status)
+
+        for key, value in response.getheaders():
+            self.send_header(key, value)
+
+        self.end_headers()
+        self.wfile.write(response.read())
 
     def do_POST(self):
+        print(self.path)
         if self.path == "/favorites":
             return self.add_favorite()
 

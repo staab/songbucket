@@ -1,0 +1,131 @@
+body {
+  font-family: "Lucida Grande";
+  font-weight: 100;
+  margin: 0;
+}
+
+h1 {
+  margin: 0;
+  padding: 22px 16px;
+  font-size: 24px;
+  font-weight: 100;
+}
+
+ul {
+  padding-inline-start: 18px;
+}
+
+li {
+  margin: 10px 0;
+}
+
+li .favorite-song {
+  font-weight: bold;
+  display: block;
+}
+
+li:hover .favorite-song {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dark {
+  background-color: #146D6A;
+  color: white;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  width: 710px;
+  margin: 45px auto;
+  display: flex;
+  align-items: flex-start;
+}
+
+.column-left {
+  width: 30%;
+  margin-right: 5%;
+  padding: 16px;
+  border-radius: 3px;
+}
+
+.column-right {
+  width: 65%;
+  min-height: 50rem;
+}
+
+h2 {
+  margin: 0;
+  padding-bottom: 6px;
+}
+
+hr {
+  border: 1px solid white;
+}
+
+a {
+  color: #146D6A;
+  text-decoration: underline;
+  transition: opacity 300ms;
+  cursor: pointer;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+.row {
+  margin-bottom: 18px;
+  display: flex;
+}
+
+input,
+button {
+  flex-grow: 1;
+  padding: 14px;
+  border-radius: 3px;
+  border: 1px solid #146D6A;
+  font-size: 18px;
+}
+
+input::placeholder {
+  color: #146D6A;
+  font-family: "Lucida Grande";
+  font-weight: 100;
+  opacity: 0.8;
+}
+
+input {
+  color: #146D6A;
+}
+
+button {
+  background: #146D6A;
+  color: white;
+  cursor: pointer;
+  transition: opacity 300ms;
+  font-family: "Lucida Grande";
+  font-weight: 100;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+input[name="song"] {
+  flex-grow: 2;
+  margin-right: 2%;
+}
+
+.result {
+  margin-top: 54px;
+}
+
+.result h2 {
+  color: #146D6A;
+}
+
+.lyrics p {
+  line-height: 30px;
+  white-space: pre-line;
+}
